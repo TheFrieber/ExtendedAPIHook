@@ -1,14 +1,16 @@
 # ExtendedAPIHook
 A ComfyUI extension to allow external control over generation
 
-This extension uses Flask(For the Rest API), Selenium(Controled Workflow), Webdriver Manager(Custom Session) and Flasgger(Swagger UI) for its functionality. The aim of this extension is to allow doing stuff with ComfyUI automated, without needing to recode the source with a workaround by using Selenuim in head mode.
-This addon was written for KoboldCS to add ComfyUI support for chatting sessions.
+This extension uses Flask(For the Rest API), Selenium(Controlled Workflow), Webdriver Manager(Custom Session) and Flasgger(Swagger UI) for its functionality. The purpose of this extension is to automate stuff with ComfyUI without requiring modifications to the source code, by using Selenium in head mode. It was developed specifically for KoboldCS to enable ComfyUI support for chat sessions.
 
 ## Installation
 
 ------------
+Alternatively use KoboldCS's installer if you intend to use this with KoboldCS
 
-Head into your `python_embeded` folder and install the packages with:
+###### or (- Manual installation -)
+
+Head into your `python_embeded` folder in your ComfyUI root directory and install the following required packages with:
 ##### Selenium:
 ```python -m pip install selenium```
 ##### Webdriver Manager:
@@ -18,4 +20,16 @@ Head into your `python_embeded` folder and install the packages with:
 ##### Flasgger:
 ```python -m pip install flasgger```
 
-Alternatively use KoboldCS's installer if you intend to use this with KoboldCS
+Then move the `ExtendedAPIHook` folder your `custom_nodes` folder
+
+
+## Usage
+
+------------
+Link to access the Swagger UI locally: `http://127.0.0.1:5000/apidocs/`
+
+This extension uses a custom node called `KSampler (External)` which can be optionally used to control `steps`, `cfg`, `positive prompt,` `sampler_name` and `scheduler`. Be informed that external send data won't be included in the metadata of the generated pictures.
+
+Furthermore you are able to start- cancel generation and receive result per Rest-API. 
+
+**To receive the image**, you  **must**  use the `Save Image` node where the filename-prefix is set to `ComfyUI` when not changed in the source.
