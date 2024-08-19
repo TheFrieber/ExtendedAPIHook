@@ -20,7 +20,7 @@ Head into your `python_embeded` folder in your ComfyUI root directory and instal
 ##### Flasgger:
 ```python -m pip install flasgger```
 
-Then move the `ExtendedAPIHook` folder your `custom_nodes` folder
+Then move the `ExtendedAPIHook` folder into your `custom_nodes` folder
 
 
 ## Usage
