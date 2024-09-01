@@ -183,7 +183,7 @@ def interact_with_workflow():
 @app.route('/run-script', methods=['GET'])
 def run_script():
     """
-    Runs the script and generates an image.
+    Runs the script and generates an image. To use the params, please use a custom node.
     ---
     parameters:
       - name: input_string
@@ -203,7 +203,7 @@ def run_script():
         type: number
         required: false
         description: CFG scale (strength of prompt adherence). Default is 8.0.
-        default: 8.0  # Placeholder for cfg
+        default: 8.0
       - name: sampler_name
         in: query
         type: string
@@ -308,7 +308,7 @@ def common_ksampler(model, seed, steps, cfg, sampler_name, scheduler, positive, 
     out["samples"] = samples
     return (out, )
 
-class KSamplerExternal:
+class KSamplerExternalAdvanced:
     @classmethod
     def INPUT_TYPES(s):
         return {"required":
@@ -340,11 +340,49 @@ class KSamplerExternal:
     
 
 
+class KSamplerExternalPrompt:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required":
+                    {"model": ("MODEL",),
+                    "seed": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
+                    "steps": ("INT", {"default": 20, "min": 1, "max": 10000}),
+                    "cfg": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0, "step":0.1, "round": 0.01}),
+                    "sampler_name": (comfy.samplers.KSampler.SAMPLERS, ),
+                    "scheduler": (comfy.samplers.KSampler.SCHEDULERS, ),
+                    "negative": ("CONDITIONING", ),
+                    "latent_image": ("LATENT", ),
+                    "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                    "positive_prompt": ("STRING", {"multiline": True, "dynamicPrompts": True}), "clip": ("CLIP", )
+                     }
+                }
+
+    RETURN_TYPES = ("LATENT",)
+    FUNCTION = "sample"
+
+    CATEGORY = "Extended API Hook"
+
+    def encode(self, clip, positive_prompt):
+        global ExtPrompt
+        tokens = clip.tokenize(positive_prompt + ExtPrompt)
+        output = clip.encode_from_tokens(tokens, return_pooled=True, return_dict=True)
+        cond = output.pop("cond")
+        return [[cond, output]]
+
+
+    def sample(self, model, seed, steps, cfg, sampler_name, scheduler, negative, latent_image, denoise, positive_prompt, clip):
+        positive = self.encode(clip, positive_prompt)
+        return common_ksampler(model, seed, steps, cfg, sampler_name, scheduler, positive, negative, latent_image, denoise=denoise)
+    
+
+
 
 NODE_CLASS_MAPPINGS = {
-    "KSamplerExternal": KSamplerExternal
+    "KSamplerExternal": KSamplerExternalAdvanced,
+    "KSamplerExternalPrompt": KSamplerExternalPrompt
     }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "KSamplerExternal": "KSampler (External)",
+    "KSamplerExternal": "KSampler (External Advanced)",
+    "KSamplerExternalPrompt": "KSampler (External Prompt)",
     }
