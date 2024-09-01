@@ -28,7 +28,7 @@ Then move the `ExtendedAPIHook` folder your `custom_nodes` folder
 ------------
 Link to access the Swagger UI locally: `http://127.0.0.1:5000/apidocs/`
 
-This extension uses a custom node called `KSampler (External)` which can be optionally used to control `steps`, `cfg`, `positive prompt,` `sampler_name` and `scheduler`. Be informed that external send data won't be included in the metadata of the generated pictures, so those will be missing.
+This extension uses custom nodes called `KSampler (External Advanced)` and `KSampler (External Prompt)` which can be optionally used to control `steps`, `cfg`, `positive prompt,` `sampler_name` and `scheduler`. Be informed that external send data won't be included in the metadata of the generated pictures, so those will be missing.
 
 Furthermore you are able to start and cancel generation and receive result per Rest-API. 
 
