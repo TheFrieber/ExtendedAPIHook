@@ -1,4 +1,6 @@
+import comfy.model_management as model_management
 import threading
+import gc
 import time
 import os
 import torch
@@ -131,6 +133,8 @@ def get_queue_size():
 
 def wait_for_new_image(existing_files, timeout=260):
     """Wait for a new image to appear in the output directory, while also monitoring the queue size."""
+    while get_queue_size() == 0:
+            time.sleep(1)
     start_time = time.time()
     while time.time() - start_time < timeout:
         current_files = [f for f in os.listdir(output_dir) if f.endswith(".png") and "ComfyUI_" in f]
@@ -150,6 +154,7 @@ def wait_for_new_image(existing_files, timeout=260):
 
         time.sleep(1)  # Check again every 1 second
 
+    print("RET NULL")
     return None
 
 def interact_with_workflow():
@@ -174,10 +179,13 @@ def interact_with_workflow():
             new_image = wait_for_new_image(existing_files)
             if new_image and new_image != "generation canceled":
                 time.sleep(2)  # Wait a little to ensure the image is fully written onto disk
+                print(new_image)
                 return os.path.join(output_dir, new_image)
             else:
+                print(new_image)
                 return new_image if new_image == "generation canceled" else "Image did not appear in time."
         except Exception as e:
+            print(e)
             return str(e)
 
 @app.route('/run-script', methods=['GET'])
@@ -254,6 +262,13 @@ def run_script():
 
     if image_path == "generation canceled":
         return jsonify({"result": "generation canceled"}), 200
+
+    # model_management.unload_all_models()
+    # model_management.soft_empty_cache(True)
+    # gc.collect()
+    # torch.cuda.empty_cache()
+    # torch.cuda.ipc_collect()
+    # gc.collect()
 
     # Send the image file as a response
     return send_file(image_path, mimetype='image/png')
